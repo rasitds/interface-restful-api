@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 var (
@@ -14,35 +15,74 @@ var (
 func main() {
 	fmt.Println("INIT")
 
-	app.Static("/", "./public")
+	app.Use(cors.New())
+
+	app.Static("/", "../sencha-web-ui/build")
 
 	app.Get("/fiber", func(c *fiber.Ctx) error {
 		return c.SendString("Fiber")
 	}).Name("fiberapi")
 
-	anotherRoute()
-	anotherRoute2()
+	apiRouteHandler()
+	apiThemeRoute()
 
-	app.Listen(":3000")
+	app.Listen(":1010")
 }
 
-func anotherRoute() {
+func apiRouteHandler() {
 	app.Use("/api", func(c *fiber.Ctx) error {
-		fmt.Println("API Handler")
+		fmt.Println("API Route Handler")
 		return c.Next()
 	})
-
-	app.Get("/api/info/fiberapi", func(c *fiber.Ctx) error {
-		fmt.Println("info fiberapi api handler")
-		data, _ := json.MarshalIndent(app.GetRoute("fiberapi"), "", " ")
-		return c.Send(data)
-	})
 }
 
-func anotherRoute2() {
-	app.Get("/:name/:age/:gender?", func(c *fiber.Ctx) error {
-		msg := fmt.Sprintf("%s is %s years old. %s", c.Params("name"), c.Params("age"), c.Params("gender"))
+func apiThemeRoute() {
+	app.Get("/api/themes/:theme", func(c *fiber.Ctx) error {
+		fmt.Println("api themes handler")
 
-		return c.SendString(msg)
+		var themeData = map[string]interface{}{
+			"default": map[string]interface{}{
+				"background": "black",
+				"foreground": "white",
+			},
+			"cfi-blue": map[string]interface{}{
+				"background": "#1974D2",
+				"foreground": "white",
+			},
+			"aqua": map[string]interface{}{"background": "black", "foreground": "#33ffd0"},
+			"white-orange": map[string]interface{}{
+				"background": "#ff8000",
+				"foreground": "white",
+			},
+			"light-blue": map[string]interface{}{
+				"background": "black",
+				"foreground": "#33bbff",
+			},
+			"yellow":       map[string]interface{}{"background": "black", "foreground": "yellow"},
+			"pinkish":      map[string]interface{}{"background": "black", "foreground": "#DE3163"},
+			"dark":         map[string]interface{}{"background": "black", "foreground": "#f2f2f2"},
+			"light":        map[string]interface{}{"background": "#f2f2f2", "foreground": "black"},
+			"orange":       map[string]interface{}{"background": "black", "foreground": "#EA5B0C"},
+			"cyan":         map[string]interface{}{"background": "black", "foreground": "#4CBEC5"},
+			"green":        map[string]interface{}{"background": "black", "foreground": "#00CC11"},
+			"pink":         map[string]interface{}{"background": "black", "foreground": "#FF6666"},
+			"faint-orange": map[string]interface{}{"background": "black", "foreground": "#996633"},
+			"neon-blue":    map[string]interface{}{"background": "black", "foreground": "#0033FF"},
+			"ultra-green":  map[string]interface{}{"background": "black", "foreground": "#0aff84"},
+			"ultra-purple": map[string]interface{}{"background": "black", "foreground": "#8709f4"},
+			"iron-gray":    map[string]interface{}{"background": "black", "foreground": "#52595D"},
+			"bright-gray":  map[string]interface{}{"background": "black", "foreground": "#DCDCDC"},
+			"bright-blue":  map[string]interface{}{"background": "black", "foreground": "#006EF0"},
+		}
+
+		theme := themeData[c.Params("theme")]
+
+		jsonData, err := json.MarshalIndent(theme, "", " ")
+
+		if err != nil {
+			fmt.Printf("/api/themes Error: %s\n", err)
+		}
+
+		return c.Send(jsonData)
 	})
 }
