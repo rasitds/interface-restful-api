@@ -75,9 +75,13 @@ func apiThemeRoute() {
 			"bright-blue":  map[string]interface{}{"background": "black", "foreground": "#006EF0"},
 		}
 
-		theme := themeData[c.Params("theme")]
+		themeInfo := themeData[c.Params("theme")]
 
-		jsonData, err := json.MarshalIndent(theme, "", " ")
+		if themeInfo == nil {
+			themeInfo = map[string]interface{}{"message": "Theme not found."}
+		}
+
+		jsonData, err := json.MarshalIndent(themeInfo, "", " ")
 
 		if err != nil {
 			fmt.Printf("/api/themes Error: %s\n", err)
