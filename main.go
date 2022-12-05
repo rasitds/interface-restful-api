@@ -64,12 +64,12 @@ func themeHandler(api fiber.Router) {
 	api.Get("/themes/:theme", func(c *fiber.Ctx) error {
 		fmt.Println("API Themes Handler")
 
-		foundedTheme := themes[c.Params("theme")]
+		themeData := themes[c.Params("theme")]
 
-		if foundedTheme == nil {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"message": "Theme not found"})
+		if themeData == nil {
+			return c.JSON(fiber.Map{"message": "Theme not found"})
 		}
 
-		return c.JSON(foundedTheme)
+		return c.JSON(themeData)
 	})
 }
