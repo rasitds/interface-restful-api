@@ -36,13 +36,16 @@ var themes map[string]*Theme = map[string]*Theme{
 
 func main() {
 	router := gin.Default()
-	router.GET("/themes", func(c *gin.Context) {
+
+	apiRouter := router.Group("/api")
+
+	apiRouter.Handle("GET", "/themes", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": themes,
+			"data": themes,
 		})
 	})
 
-	router.POST("/theme", colorThemes)
+	apiRouter.Handle("POST", "/theme", colorThemes)
 
 	router.Run()
 }
