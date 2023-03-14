@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gin-gonic/gin"
 )
 
 type Theme struct {
@@ -36,40 +35,12 @@ var themes map[string]*Theme = map[string]*Theme{
 }
 
 func main() {
-	app := fiber.New()
-	app.Use(cors.New())
-
-	app.Static("/", "../sencha-web-ui/build")
-
-	app.Get("/fiber", func(c *fiber.Ctx) error {
-		return c.SendString("Fiber")
-	}).Name("fiberapi")
-
-	api := app.Group("/api")
-
-	indexHandler(api)
-	themeHandler(api)
-
-	app.Listen(":1010")
-}
-
-func indexHandler(api fiber.Router) {
-	api.Use("/", func(c *fiber.Ctx) error {
-		fmt.Println("API Index Handler")
-		return c.Next()
+	router := gin.Default()
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": themes,
+		})
 	})
-}
 
-func themeHandler(api fiber.Router) {
-	api.Get("/themes/:theme", func(c *fiber.Ctx) error {
-		fmt.Println("API Themes Handler")
-
-		themeData := themes[c.Params("theme")]
-
-		if themeData == nil {
-			return c.JSON(fiber.Map{"message": "Theme not found"})
-		}
-
-		return c.JSON(themeData)
-	})
+	router.Run()
 }
