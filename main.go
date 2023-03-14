@@ -36,11 +36,25 @@ var themes map[string]*Theme = map[string]*Theme{
 
 func main() {
 	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {
+	router.GET("/themes", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": themes,
 		})
 	})
 
+	router.POST("/theme", colorThemes)
+
 	router.Run()
+}
+
+func colorThemes(c *gin.Context) {
+	var newTheme Theme
+
+	themeName := c.Params.ByName("name")
+	newTheme.Background = c.Params.ByName("background")
+	newTheme.Foreground = c.Params.ByName("foreground")
+
+	themes[themeName] = &newTheme
+
+	c.JSON(http.StatusOK, gin.H{"themeName": themeName, "themeData": themes[themeName]})
 }
