@@ -9,10 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var Themes = []models.Theme{
-	{ID: "1", ThemeName: "red", BackgroundColor: "#000", ForegroundColor: "#FF0000"}, {ID: "2", ThemeName: "yellow", BackgroundColor: "#000", ForegroundColor: "#FFFF00"},
-}
-
 type MemoryBackend struct {
 	DB []models.Theme
 }
