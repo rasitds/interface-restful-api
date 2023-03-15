@@ -7,31 +7,32 @@ import (
 )
 
 type Theme struct {
-	Background string `json:"background"`
-	Foreground string `json:"foreground"`
+	ID              string `json:"id"`
+	ThemeName       string `json:"themeName"`
+	BackgroundColor string `json:"backgroundColor"`
+	ForegroundColor string `json:"foregroundColor"`
 }
 
-var themes map[string]*Theme = map[string]*Theme{
-	"default":      {Background: "black", Foreground: "white"},
-	"cfi-blue":     {Background: "#1974D2", Foreground: "white"},
-	"aqua":         {Background: "black", Foreground: "#33ffd0"},
-	"white-orange": {Background: "#ff8000", Foreground: "white"},
-	"light-blue":   {Background: "black", Foreground: "#33bbff"},
-	"yellow":       {Background: "black", Foreground: "yellow"},
-	"pinkish":      {Background: "black", Foreground: "#DE3163"},
-	"dark":         {Background: "black", Foreground: "#f2f2f2"},
-	"light":        {Background: "#f2f2f2", Foreground: "black"},
-	"orange":       {Background: "black", Foreground: "#EA5B0C"},
-	"cyan":         {Background: "black", Foreground: "#4CBEC5"},
-	"green":        {Background: "black", Foreground: "#00CC11"},
-	"pink":         {Background: "black", Foreground: "#FF6666"},
-	"faint-orange": {Background: "black", Foreground: "#996633"},
-	"neon-blue":    {Background: "black", Foreground: "#0033FF"},
-	"ultra-green":  {Background: "black", Foreground: "#0AFF84"},
-	"ultra-purple": {Background: "black", Foreground: "#8709F4"},
-	"iron-gray":    {Background: "black", Foreground: "#52595D"},
-	"bright-gray":  {Background: "black", Foreground: "#dcdcdc"},
-	"bright-blue":  {Background: "black", Foreground: "#006EF0"},
+var themes = []Theme{
+	{ID: "1", ThemeName: "red", BackgroundColor: "#000", ForegroundColor: "#FF0000"}, {ID: "2", ThemeName: "yellow", BackgroundColor: "#000", ForegroundColor: "#FFFF00"},
+}
+
+func IsThemeExistsById(themes []Theme, themeId string) *int {
+	for i, t := range themes {
+		if t.ID == themeId {
+			return &i
+		}
+	}
+	return nil
+}
+
+func IsThemeExistsByName(themes []Theme, themeName string) *int {
+	for i, t := range themes {
+		if t.ThemeName == themeName {
+			return &i
+		}
+	}
+	return nil
 }
 
 func main() {
@@ -39,25 +40,84 @@ func main() {
 
 	apiRouter := router.Group("/api")
 
-	apiRouter.Handle("GET", "/themes", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"data": themes,
-		})
-	})
+	apiRouter.Handle("GET", "/themes", getThemes)
+	apiRouter.Handle("GET", "/theme/:name", readTheme)
 
-	apiRouter.Handle("POST", "/theme", colorThemes)
+	apiRouter.Handle("POST", "/theme", createTheme)
+	apiRouter.Handle("POST", "/theme/update/:id", updateTheme)
+	apiRouter.Handle("POST", "/theme/delete/:id", deleteTheme)
 
 	router.Run()
 }
 
-func colorThemes(c *gin.Context) {
+func createTheme(c *gin.Context) {
 	var newTheme Theme
 
+	if c.Bind(&newTheme) == nil {
+		index := IsThemeExistsByName(themes, newTheme.ThemeName)
+		if index != nil {
+			c.IndentedJSON(http.StatusOK, gin.H{"data": "theme name exists"})
+			return
+		}
+
+		themes = append(themes, newTheme)
+		c.JSON(http.StatusOK, gin.H{"createdTheme": newTheme})
+	}
+}
+
+func readTheme(c *gin.Context) {
 	themeName := c.Params.ByName("name")
-	newTheme.Background = c.Params.ByName("background")
-	newTheme.Foreground = c.Params.ByName("foreground")
 
-	themes[themeName] = &newTheme
+	for _, t := range themes {
+		if t.ThemeName == themeName {
+			c.IndentedJSON(http.StatusOK, t)
+			return
+		}
+	}
 
-	c.JSON(http.StatusOK, gin.H{"themeName": themeName, "themeData": themes[themeName]})
+	c.IndentedJSON(http.StatusNotFound, gin.H{"data": "theme not found"})
+}
+
+func updateTheme(c *gin.Context) {
+	themeId := c.Param("id")
+
+	index := IsThemeExistsById(themes, themeId)
+	if index == nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"data": "theme not found"})
+		return
+	}
+
+	var json struct {
+		BackgroundColor string `json:"backgroundColor"`
+		ForegroundColor string `json:"foregroundColor"`
+	}
+
+	var i = *index
+	if c.Bind(&json) == nil {
+		themes[i].BackgroundColor = json.BackgroundColor
+		themes[i].ForegroundColor = json.ForegroundColor
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": true})
+}
+
+func deleteTheme(c *gin.Context) {
+	themeId := c.Param("id")
+
+	index := IsThemeExistsById(themes, themeId)
+	if index == nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"data": "theme not found"})
+		return
+	}
+
+	var i = *index
+	themes = append(themes[:i], themes[i+1:]...)
+
+	c.JSON(http.StatusOK, gin.H{"status": true})
+}
+
+func getThemes(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"data": themes,
+	})
 }
