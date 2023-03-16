@@ -1,7 +1,7 @@
 package backend
 
 import (
-	"github.com/durmusrasit/sencha-gin-api/internal/theme/models"
+	"github.com/durmusrasit/sencha-restful-api/internal/theme/models"
 	"github.com/gin-gonic/gin"
 )
 

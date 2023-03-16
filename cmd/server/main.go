@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/durmusrasit/sencha-gin-api/internal/theme/backend/memory"
-	"github.com/durmusrasit/sencha-gin-api/internal/theme/db"
-	"github.com/durmusrasit/sencha-gin-api/server"
+	"github.com/durmusrasit/sencha-restful-api/internal/theme/backend/memory"
+	"github.com/durmusrasit/sencha-restful-api/internal/theme/db"
+	"github.com/durmusrasit/sencha-restful-api/server"
 	"github.com/gin-gonic/gin"
 )
 

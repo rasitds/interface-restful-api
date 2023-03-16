@@ -3,9 +3,9 @@ package memory
 import (
 	"errors"
 
-	"github.com/durmusrasit/sencha-gin-api/internal/theme/backend"
-	"github.com/durmusrasit/sencha-gin-api/internal/theme/backend/utils"
-	"github.com/durmusrasit/sencha-gin-api/internal/theme/models"
+	"github.com/durmusrasit/sencha-restful-api/internal/theme/backend"
+	"github.com/durmusrasit/sencha-restful-api/internal/theme/backend/utils"
+	"github.com/durmusrasit/sencha-restful-api/internal/theme/models"
 	"github.com/gin-gonic/gin"
 )
 

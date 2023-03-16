@@ -1,4 +1,4 @@
-module github.com/durmusrasit/sencha-gin-api
+module github.com/durmusrasit/sencha-restful-api
 
 go 1.19
 

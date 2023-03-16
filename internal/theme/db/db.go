@@ -1,6 +1,6 @@
 package db
 
-import "github.com/durmusrasit/sencha-gin-api/internal/theme/models"
+import "github.com/durmusrasit/sencha-restful-api/internal/theme/models"
 
 func NewMemory() *[]models.Theme {
 	var themes = []models.Theme{
