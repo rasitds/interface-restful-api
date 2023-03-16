@@ -1,6 +1,6 @@
 package utils
 
-import "github.com/durmusrasit/sencha-gin-api/internal/theme/models"
+import "github.com/durmusrasit/sencha-restful-api/internal/theme/models"
 
 func IsThemeExistsById(themes []models.Theme, themeId string) *int {
 	for i, t := range themes {
