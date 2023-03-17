@@ -5,4 +5,5 @@ type Theme struct {
 	ThemeName       string `json:"themeName"`
 	BackgroundColor string `json:"backgroundColor"`
 	ForegroundColor string `json:"foregroundColor"`
+	UserID          string `json:"userId"`
 }
