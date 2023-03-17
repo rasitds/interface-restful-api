@@ -99,10 +99,89 @@ func (b *DynamoBackend) ReadTheme(c *gin.Context) (*models.Theme, error) {
 }
 
 func (b *DynamoBackend) UpdateTheme(c *gin.Context) error {
+	tableName := "themes"
+
+	var updatedTheme models.Theme
+
+	if c.Bind(&updatedTheme) == nil {
+
+		params := GetThemeNameAndUserIdFiltExprScanInput(tableName, updatedTheme)
+
+		result, resultErr := b.DB.Scan(params)
+		if resultErr != nil {
+			return errors.New("Query API call failed." + resultErr.Error())
+		}
+
+		if len(result.Items) < 1 {
+			return errors.New("theme does not exists")
+		}
+
+		input := &dynamodb.UpdateItemInput{
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":bg": {
+					S: aws.String(updatedTheme.BackgroundColor),
+				},
+				":fg": {
+					S: aws.String(updatedTheme.ForegroundColor),
+				},
+			},
+			TableName: aws.String(tableName),
+			Key: map[string]*dynamodb.AttributeValue{
+				"id": {
+					S: aws.String(updatedTheme.ID),
+				},
+				"themeName": {
+					S: aws.String(updatedTheme.ThemeName),
+				},
+			},
+			ReturnValues:     aws.String("UPDATED_NEW"),
+			UpdateExpression: aws.String("set backgroundColor = :bg, foregroundColor = :fg"),
+		}
+
+		_, err := b.DB.UpdateItem(input)
+		if err != nil {
+			return errors.New("error while updateitem" + err.Error())
+		}
+	}
+
 	return nil
 }
 
 func (b *DynamoBackend) DeleteTheme(c *gin.Context) error {
+	tableName := "themes"
+
+	var theme models.Theme
+
+	if c.Bind(&theme) == nil {
+		params := GetThemeNameAndUserIdFiltExprScanInput(tableName, theme)
+
+		result, resultErr := b.DB.Scan(params)
+		if resultErr != nil {
+			return errors.New("Query API call failed." + resultErr.Error())
+		}
+
+		if len(result.Items) < 1 {
+			return errors.New("theme does not exists")
+		}
+
+		input := &dynamodb.DeleteItemInput{
+			Key: map[string]*dynamodb.AttributeValue{
+				"id": {
+					S: aws.String(theme.ID),
+				},
+				"themeName": {
+					S: aws.String(theme.ThemeName),
+				},
+			},
+			TableName: aws.String(tableName),
+		}
+
+		_, err := b.DB.DeleteItem(input)
+		if err != nil {
+			return errors.New("An error accurred while calling DeleteItem: " + err.Error())
+		}
+	}
+
 	return nil
 }
 
