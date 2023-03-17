@@ -19,11 +19,11 @@ func main() {
 	backend := server.NewThemeAPIServer(dynamo.NewDynamoBackend(*db))
 
 	apiRouter.Handle("GET", "/themes", backend.GetThemes)
-	apiRouter.Handle("GET", "/theme/:name", backend.ReadTheme)
+	apiRouter.Handle("GET", "/theme/:themeName/:userId", backend.ReadTheme)
 
 	apiRouter.Handle("POST", "/theme", backend.CreateTheme)
-	apiRouter.Handle("POST", "/theme/update/:id", backend.UpdateTheme)
-	apiRouter.Handle("POST", "/theme/delete/:id", backend.DeleteTheme)
+	apiRouter.Handle("POST", "/theme/update", backend.UpdateTheme)
+	apiRouter.Handle("POST", "/theme/delete", backend.DeleteTheme)
 
 	router.Run()
 }
