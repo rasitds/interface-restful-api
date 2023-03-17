@@ -1,6 +1,10 @@
 package db
 
-import "github.com/durmusrasit/sencha-restful-api/internal/theme/models"
+import (
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/durmusrasit/sencha-restful-api/internal/theme/models"
+)
 
 func NewMemory() *[]models.Theme {
 	var themes = []models.Theme{
@@ -8,4 +12,10 @@ func NewMemory() *[]models.Theme {
 	}
 
 	return &themes
+}
+
+func NewDynamo(sess *session.Session) *dynamodb.DynamoDB {
+	svc := dynamodb.New(sess)
+
+	return svc
 }
