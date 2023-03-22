@@ -34,8 +34,8 @@ func (b *DynamoBackend) CreateTheme(c *gin.Context) (*models.Theme, error) {
 			return nil, errors.New("Got error marshalling new theme: " + err.Error())
 		}
 
-		if newTheme.UserID == "" {
-			return nil, errors.New("userId not given")
+		if err := CheckColorsAndUserIdGiven(newTheme); err != nil {
+			return nil, err
 		}
 
 		params := GetThemeNameAndUserIdFiltExprScanInput(tableName, newTheme)
@@ -104,6 +104,9 @@ func (b *DynamoBackend) UpdateTheme(c *gin.Context) error {
 	var updatedTheme models.Theme
 
 	if c.Bind(&updatedTheme) == nil {
+		if err := CheckColorsAndUserIdGiven(updatedTheme); err != nil {
+			return err
+		}
 
 		params := GetThemeNameAndUserIdFiltExprScanInput(tableName, updatedTheme)
 
@@ -153,6 +156,13 @@ func (b *DynamoBackend) DeleteTheme(c *gin.Context) error {
 	var theme models.Theme
 
 	if c.Bind(&theme) == nil {
+		if theme.ThemeName == "" {
+			return errors.New("themeName not given")
+		}
+		if theme.UserID == "" {
+			return errors.New("userId not given")
+		}
+
 		params := GetThemeNameAndUserIdFiltExprScanInput(tableName, theme)
 
 		result, resultErr := b.DB.Scan(params)
